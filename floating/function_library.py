@@ -13,6 +13,7 @@ import pvlib
 import pickle
 import numpy as np
 import seaborn as sns
+import scipy.stats as stats
 
 
 # =============================================================================
@@ -793,7 +794,18 @@ def calculate_anomalies_grade(df,range_values):
     # Return both the numerical value and the result DataFrame with grades
     return anomalies_percentage.values, grade_anomalies.values
 
+def calculate_uPLR(u2_a, u2_b, a, b):
+    uPLR = np.sqrt((u2_a * ((12 / b) ** 2)) + (b * u2_b * (12 * a / (b ** 2) ** 2)))
+    return uPLR
 
+def calculate_confidence_interval(u2_a, u2_b, a, b, PLR, confidence_level=0.95):
+    uPLR = np.sqrt((12 * b)**2 * u2_a + (b * (12 * a * b)**2) * u2_b)
+    critical_value = stats.t.ppf((1 + confidence_level) / 2, df=1)
+    MOE = critical_value * uPLR
+    lower_bound = PLR - MOE
+    upper_bound = PLR + MOE
+    bounds = [lower_bound, upper_bound]
+    return bounds
 # =============================================================================
 # =============================================================================
 # =============================================================================
